@@ -1,4 +1,4 @@
-<!--Minuto 31 del video--><template>
+<template>
   <div class="home">
     <!--Dividir la pagina en dos secciones:-->
     <div class="row mx-0">
