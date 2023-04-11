@@ -9,6 +9,7 @@
   "dependencies": {
     "core-js": "^3.8.3",
     "eslint": "^8.37.0",
+    "light-switch-bootstrap": "^0.1.5",
     "material-icons": "^1.13.2",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",

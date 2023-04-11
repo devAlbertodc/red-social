@@ -1,5 +1,31 @@
 <template>
   <NavComp/><!--Importar la barra de navegacion-->
+
+  <!--Sección genérica para todos los componentes.
+  Permitir al usuario cambiar de tema claro al oscuro.
+  Se deja margen con la barra superior y se crea una fila con dos columnas.
+  La primera mostrará la imagen y la segunda permitirá habilitar o deshabilitar-->
+  <div class="container mt-2">
+    <div class="row">
+      <div class="col col-10 form-check-reverse">
+        <img src="./assets/imgDarkMode.png">
+      </div>
+
+      <div class="col col-1">
+        <div class="form-switch">
+        <input class="form-check-input" type="checkbox" role="switch"
+              @click="modeToggle" :class="darkDark">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--
+  <div class="container form-check-reverse form-check form-switch" @click="modeToggle" :class="darkDark">
+    <img src="./assets/imgDarkMode.png" alt="">
+  </div>
+  -->
+
   <router-view v-slot="{Component}">
     <transition name="fadeUp" mode="out-in">
       <component :is="Component" :key="$route.path"></component>
@@ -17,7 +43,38 @@ export default{
   components: {
     NavComp,
     FootNav
+  },  
+  data() {
+    return {
+      darkMode: false
+    }
+  },  
+  methods: {
+    //Funciones que permiten añadir/quitar la clase para aplicar o eliminar el modo nocturno:
+    dark() {
+      document.querySelector('body').classList.add('dark-mode')
+      this.darkMode = true
+      this.$emit('dark')
+    },
+    light() {
+      document.querySelector('body').classList.remove('dark-mode')
+      this.darkMode = false
+      this.$emit('light')
+    },
+    //Funcion que gestiona la lógica para cambiar entre modos:
+    modeToggle() {
+      if(this.darkMode || document.querySelector('body').classList.contains('dark-mode')) {
+        this.light()
+      } else {
+        this.dark()
+      }
+    },
   },
+  computed: {
+    darkDark() {
+      return this.darkMode && 'darkmode-toggled'
+    }
+  }
 }
 </script>
 
@@ -37,5 +94,15 @@ export default{
   .fadeUp-leave-to {
     opacity: 0;
     transform: translateY(30%);
+  }
+
+  /*Habilitar modo nocturno */
+  body {
+    background-color: #fff;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  body.dark-mode {
+    background-color: #242424;
   }
 </style>
