@@ -1,10 +1,10 @@
 <template>
   <NavComp/><!--Importar la barra de navegacion-->
 
-  <!--Sección genérica para todos los componentes.
+  <!--Secciï¿½n genï¿½rica para todos los componentes.
   Permitir al usuario cambiar de tema claro al oscuro.
   Se deja margen con la barra superior y se crea una fila con dos columnas.
-  La primera mostrará la imagen y la segunda permitirá habilitar o deshabilitar-->
+  La primera mostrarï¿½ la imagen y la segunda permitirï¿½ habilitar o deshabilitar-->
   <div class="container mt-2">
     <div class="row">
       <div class="col col-10 form-check-reverse">
@@ -20,12 +20,6 @@
     </div>
   </div>
 
-  <!--
-  <div class="container form-check-reverse form-check form-switch" @click="modeToggle" :class="darkDark">
-    <img src="./assets/imgDarkMode.png" alt="">
-  </div>
-  -->
-
   <router-view v-slot="{Component}">
     <transition name="fadeUp" mode="out-in">
       <component :is="Component" :key="$route.path"></component>
@@ -35,11 +29,22 @@
 </template>
 
 <script>
+//Ajustes para hacer funcionar firebase:
+import {onMounted} from 'vue';
+import {auth} from './utils/firebase';
+
 import FootNav from '@/components/FootNav.vue';
 import NavComp from '@/components/NavComp.vue';
 //Indicar que el NavComp es un componente. Objeto con propiedades
 export default{
   name: 'App',
+  setup(){
+    onMounted(() => {
+      auth.onAuthStateChanged((user) => {
+        console.log(user)
+      });
+    });
+  },
   components: {
     NavComp,
     FootNav
@@ -50,7 +55,7 @@ export default{
     }
   },  
   methods: {
-    //Funciones que permiten añadir/quitar la clase para aplicar o eliminar el modo nocturno:
+    //Funciones que permiten aï¿½adir/quitar la clase para aplicar o eliminar el modo nocturno:
     dark() {
       document.querySelector('body').classList.add('dark-mode')
       this.darkMode = true
@@ -61,7 +66,7 @@ export default{
       this.darkMode = false
       this.$emit('light')
     },
-    //Funcion que gestiona la lógica para cambiar entre modos:
+    //Funcion que gestiona la lï¿½gica para cambiar entre modos:
     modeToggle() {
       if(this.darkMode || document.querySelector('body').classList.contains('dark-mode')) {
         this.light()
