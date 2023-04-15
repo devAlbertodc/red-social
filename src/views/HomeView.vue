@@ -10,23 +10,35 @@
       </div>
       <div class="col-lg-6">
         <!--Seccion de carta aceptando parametros como el titulo:-->
-        <Card-comp :btns="btnArray" class="mx-auto card-comp">
+        <Card-comp class="mx-auto card-comp">
           <!--Hacer saber a view que el codigo html se va a mostrar en el slot con name="default"-->
           <template #default>
             <form>
               <div class="mb-3 mt-2">
-                <input type="email" class="form-control" placeholder="Ingresa tu email"/>
+                <input class="form-control" type="email" v-model="email" placeholder="Ingresa tu email"/>
               </div>
               <div class="mb-3 mt-2">
-                <input type="password" class="form-control" placeholder="Ingresa Contraseña"/>
+                <input class="form-control" type="password" v-model="password" placeholder="Ingresa contraseña"/>
               </div>
+
+              <div class="d-flex justify-content-center">
+                <button type="button" class="btn btn-primary w-75" @click="googleSignIn">Iniciar sesion </button>
+              </div>    
+              <p v-if="errMsg">{{ errMsg }}</p>
             </form>
           </template>
 
           <!--Seccion html para mostrar footer en cardComp: -->
           <template #footer>
             <hr/>
-            <div class="btn btn-success">Crear cuenta</div>
+            <div class="d-flex justify-content-center">
+              <button class="btn btn-success w-75" @click="register">Registrarse</button>
+            </div>
+            <hr/>
+            <div class="d-flex justify-content-center">
+              <button class="btn btn-danger w-75" @click="handleSignOut" v-if="isLoggedIn">Cerrar sesion</button>
+            </div>
+
           </template>
         </Card-comp>
       </div>
@@ -34,28 +46,79 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { auth } from '@/utils/firebase';
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from '@firebase/auth';
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import CardComp from '../components/CardComp.vue';
 
-export default {
-  name: 'HomeView',
-  components:{
-    CardComp,
-  },
-  data() {
-    return {
-      btnArray: [
-        {
-          txt: "Iniciar sesion",
-          class: "btn-primary"
-        },
-        {
-          txt: "Olvidaste tu contraseña",
-          class: ""
-        },
-      ],
+//Inicializar valores
+const email = ref('');
+const password = ref('');
+const errMsg = ref('');
+const router = useRouter();
+const isLoggedIn = ref(false);
+
+//auth/network-request-failed - error cuando no hay conexion a internet
+
+//Nuevo usuario:
+const register = () => {
+  //Se recogen los valores y se redirige a la sección de posts:
+  createUserWithEmailAndPassword(auth, email.value, password.value)
+    .then((data) => {
+      console.log("Usuario creado con nombre:", email.value + " y contraseña " + password.value);
+      router.push("/posts");
+    })
+    .catch((err) => {
+      console.log("Error creating user:", err);
+    });
+}
+
+//Usuario ya existente, se añade gestión de errores:
+const googleSignIn = () => {
+  signInWithEmailAndPassword(auth, email.value, password.value)
+    .then((data) => {
+      console.log("User signed in with email:", email.value);
+      router.push("/posts");
+    })
+    .catch((error) => {
+      //errMsg.value = strMsgErr(error);
+      switch (error.code) {
+        case "auth/invalid-email":
+          errMsg.value = "El email ingresado no es válido.";
+          break;
+        case "auth/user-not-found":
+          errMsg.value = "El email ingresado no existe.";
+          break;
+        case "auth/wrong-password":
+          errMsg.value = "Contraseña incorrecta.";
+          break;
+        case "auth/network-request-failed":
+          errMsg.value = "Problemas recibiendo los datos. Intenta de nuevo, por favor";
+          break;
+        default:
+          errMsg.value = "Error de autenticación.";
+          break;
+      }
+    });
+}
+
+//Comprobar si el usuario esta logueado para mostrar boton de cerrar sesion:
+onMounted(() => {
+  onAuthStateChanged(auth, (user) => {
+    if(user){
+      isLoggedIn.value = true;
+    }else{
+      isLoggedIn.value = false;
     }
-  },
+  });
+});
+
+const handleSignOut = () => {
+  signOut(auth).then(() => {
+    router.push("/");
+  });
 }
 </script>
 

@@ -30,8 +30,7 @@
 
 <script>
 //Ajustes para hacer funcionar firebase:
-import {onMounted} from 'vue';
-import {auth} from './utils/firebase';
+import { onMounted } from 'vue';
 
 import FootNav from '@/components/FootNav.vue';
 import NavComp from '@/components/NavComp.vue';
@@ -40,9 +39,9 @@ export default{
   name: 'App',
   setup(){
     onMounted(() => {
-      auth.onAuthStateChanged((user) => {
+      /*auth.onAuthStateChanged((user) => {
         console.log(user)
-      });
+      });*/
     });
   },
   components: {
